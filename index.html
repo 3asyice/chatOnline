@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        /* Add your styles here */
+    </style>
+</head>
+<body>
+    <div id="chat-window">
+        <div id="chat-messages"></div>
+        <input type="text" id="message-input" placeholder="Type your message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      const socket = new WebSocket('ws://your-server-url'); // Replace with your WebSocket server URL
+
+// Listen for messages from the server
+socket.addEventListener('message', (event) => {
+    const message = JSON.parse(event.data);
+    displayMessage(message);
+});
+
+// Function to send a message to the server
+function sendMessage() {
+    const inputElement = document.getElementById('message-input');
+    const message = inputElement.value.trim();
+
+    if (message !== '') {
+        const messageObject = { text: message, timestamp: new Date().toLocaleTimeString() };
+        socket.send(JSON.stringify(messageObject));
+        displayMessage(messageObject);
+        inputElement.value = '';
+    }
+}
+
+// Function to display a message in the chat window
+function displayMessage(message) {
+    const messagesContainer = document.getElementById('chat-messages');
+    const messageElement = document.createElement('div');
+    messageElement.innerText = `[${message.timestamp}] ${message.text}`;
+    messagesContainer.appendChild(messageElement);
+}
+
+    </script>
+    <script>
+      const WebSocket = require('ws');
+const server = new WebSocket.Server({ port: 3000 }); // Use any available port
+
+server.on('connection', (socket) => {
+    console.log('Client connected');
+
+    // Listen for messages from clients
+    socket.on('message', (message) => {
+        // Broadcast the message to all connected clients
+        server.clients.forEach((client) => {
+            if (client !== socket && client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        });
+    });
+
+    // Handle client disconnection
+    socket.on('close', () => {
+        console.log('Client disconnected');
+    });
+});
+
+    </script>
+</body>
+</html>
+
