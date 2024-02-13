@@ -17,7 +17,7 @@
 
     <script src="script.js"></script>
     <script>
-      const socket = new WebSocket('http://localhost:3000'); // Replace with your WebSocket server URL
+      const socket = new WebSocket('ws://localhost:3000'); // Replace with your WebSocket server URL
 
 // Listen for messages from the server
 socket.addEventListener('message', (event) => {
