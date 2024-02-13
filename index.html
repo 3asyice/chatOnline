@@ -17,7 +17,7 @@
 
     <script src="script.js"></script>
     <script>
-      const socket = new WebSocket('ws://localhost:8080'); // Replace with your WebSocket server URL
+      const socket = new WebSocket('http://localhost:3000'); // Replace with your WebSocket server URL
 
 // Listen for messages from the server
 socket.addEventListener('message', (event) => {
@@ -48,28 +48,16 @@ function displayMessage(message) {
 
     </script>
     <script>
-      const WebSocket = require('ws');
-const server = new WebSocket.Server({ port: 3000 }); // Use any available port
-
-server.on('connection', (socket) => {
-    console.log('Client connected');
-
-    // Listen for messages from clients
-    socket.on('message', (message) => {
-        // Broadcast the message to all connected clients
-        server.clients.forEach((client) => {
-            if (client !== socket && client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
-    });
-
-    // Handle client disconnection
-    socket.on('close', () => {
-        console.log('Client disconnected');
-    });
-});
-
-    </script>
+      const express = require('express');
+      const { createServer } = require('node:http');
+      const app = express();
+      const server = createServer(app);
+      app.get('/', (req, res) =>{
+        res.send('<h1>Hello World</h1>');
+      });
+      server.listen(3000, () => {
+        console.log('server running at you ass http://localhost:3000')
+      })
+      </script>
 </body>
 </html>
