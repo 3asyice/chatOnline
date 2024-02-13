@@ -1,79 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
-    <style>
-        /* Add your styles here */
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Online</title>
+  <style>
+    #chat-container {
+      width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #chat-messages {
+      height: 200px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    #message-input {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    #send-button {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <div id="chat-window">
-        <div id="chat-messages"></div>
-        <input type="text" id="message-input" placeholder="Type your message">
-        <button onclick="sendMessage()">Send</button>
-    </div>
+  <div id="chat-container">
+    <div id="chat-messages"></div>
+    <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+    <button id="send-button">Enviar</button>
+  </div>
 
-    <script src="script.js"></script>
-    <script>
-    
-      const socket = new WebSocket('ws://localhost:3000'); // Replace with your WebSocket server URL
+  <script>
+    const socket = new WebSocket('ws://localhost:8080');
 
-// Listen for messages from the server
-socket.addEventListener('message', (event) => {
-    const message = JSON.parse(event.data);
-    displayMessage(message);
-});
+    socket.addEventListener('message', function (event) {
+      const chatMessages = document.getElementById('chat-messages');
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = event.data;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight; // Rolagem automática para a parte inferior
+    });
 
-// Function to send a message to the server
-function sendMessage() {
-    const inputElement = document.getElementById('message-input');
-    const message = inputElement.value.trim();
-
-    if (message !== '') {
-        const messageObject = { text: message, timestamp: new Date().toLocaleTimeString() };
-        socket.send(JSON.stringify(messageObject));
-        displayMessage(messageObject);
-        inputElement.value = '';
-    }
-}
-
-// Function to display a message in the chat window
-function displayMessage(message) {
-    const messagesContainer = document.getElementById('chat-messages');
-    const messageElement = document.createElement('div');
-    messageElement.innerText = `[${message.timestamp}] ${message.text}`;
-    messagesContainer.appendChild(messageElement);
-}
-
-    </script>
-    <script>
-      const express = require('express');
-      const { createServer } = require('node:http');
-      const app = express();
-      const server = createServer(app);
-      app.get('/', (req, res) =>{
-        res.send('<h1>Hello World</h1>');
-      });
-      server.listen(3000, () => {
-        console.log('server running at you ass http://localhost:3000')
-      })
-      const WebSocket = require('ws');
-
-const wss = new WebSocket.Server({ port: 8080 });
-
-wss.on('connection', function connection(ws) {
-  ws.on('message', function incoming(message) {
-    // Broadcast para todos os clientes conectados
-    wss.clients.forEach(function each(client) {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(message);
+    document.getElementById('send-button').addEventListener('click', function () {
+      const messageInput = document.getElementById('message-input');
+      const message = messageInput.value.trim();
+      if (message !== '') {
+        socket.send(message);
+        messageInput.value = '';
       }
     });
-  });
-});
-
-      </script>
+  </script>
 </body>
 </html>
